@@ -1,0 +1,1 @@
+export { BuildConfig } from './build-config';

@@ -2,4 +2,8 @@
  * Public API Surface of fs-menu
  */
 
-export { FsComponentModule } from './app/fs-component.module';
+export { FsBuildModule } from './app/fs-build.module';
+
+export { BuildConfig } from './app/interfaces/build-config';
+
+export { FS_BUILD_CONFIG } from './app/injectors';

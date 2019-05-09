@@ -1,0 +1,18 @@
+
+.build {
+  position: fixed;
+  bottom: 5px;
+  left: 9px;
+  color: #fff;
+
+  mat-icon {
+    height: 20px;
+    width: 20px;
+    font-size: 20px;
+  }
+}
+
+::ng-deep .build-tooltip  {
+  white-space: pre-line !important;
+  text-align: center;
+}
