@@ -1,7 +1,6 @@
 export interface BuildConfig {
-  updateSecondsInterval?: number,
+  updateSeconds?: number,
   updateEnabled?: boolean,
-  buildPath?: string,
-  buildUrl?: string,
-  enabled?: boolean,
+  updatePath?: string,
+  updateOrigin?: string
 }

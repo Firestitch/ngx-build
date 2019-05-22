@@ -22,18 +22,18 @@ export class FsBuildService implements OnDestroy {
     this.config = Object.assign({ enabled: true,
                                   updateSecondsInterval: 30,
                                   updateEnabled: true,
-                                  buildPath: 'assets/build.json',
-                                  buildUrl: window.location.origin }, config);
+                                  updatePath: 'assets/build.json',
+                                  updateOrigin: window.location.origin }, config);
     this.listen();
   }
 
   public listen() {
 
-    if (this.config.enabled === false) {
+    if (this.config.updateEnabled === false) {
       return;
     }
 
-    timer(0, this.config.updateSecondsInterval * 1000)
+    timer(0, this.config.updateSeconds * 1000)
     .pipe(
       takeUntil(this._destroy$),
       flatMap(() =>
@@ -68,8 +68,8 @@ export class FsBuildService implements OnDestroy {
 
   private get() {
 
-    const url = new URL(this.config.buildUrl);
-    url.pathname = this.config.buildPath;
+    const url = new URL(this.config.updateOrigin);
+    url.pathname = this.config.updatePath;
     const config = {
       headers: new HttpHeaders()
         .set('Content-Type', 'application/json')

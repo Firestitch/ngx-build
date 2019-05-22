@@ -1,6 +1,6 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, Input, OnChanges } from '@angular/core';
 import { FsBuildService } from '../../services/build.service';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -9,9 +9,13 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: 'build.component.html',
   styleUrls: [ 'build.component.scss' ],
 })
-export class FsBuildComponent implements OnDestroy {
+export class FsBuildComponent implements OnDestroy, OnChanges {
 
-  public build;
+  @Input() name = '';
+  @Input() date;
+  @Input() platform;
+
+  public buildTooltip;
   private _destroy$ = new Subject();
 
   constructor(private fsBuild: FsBuildService) {
@@ -21,15 +25,41 @@ export class FsBuildComponent implements OnDestroy {
       takeUntil(this._destroy$)
     )
     .subscribe((data: any) => {
-      if (data.date) {
-        const date = new Date(data.date);
-        this.build = data.name.concat('\n', format(date, 'PPpp'));
+      if (data) {
+        this.date = data.date;
+        this.name = data.name;
+        this.renderTooltip();
       }
     });
+  }
+
+  ngOnChanges() {
+    this.renderTooltip();
   }
 
   ngOnDestroy() {
     this._destroy$.next();
     this._destroy$.complete();
+  }
+
+  private renderTooltip() {
+
+    const parts = [];
+
+    if (this.name) {
+      let name = this.name;
+
+      if (this.platform) {
+        name += ':' + this.platform;
+      }
+
+      parts.push(name);
+    }
+
+    if (isValid(new Date(this.date))) {
+      parts.push(format(new Date(this.date), 'PPpp'));
+    }
+
+    this.buildTooltip = parts.join('\n');
   }
 }
