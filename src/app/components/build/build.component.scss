@@ -4,15 +4,15 @@
   bottom: 5px;
   left: 9px;
   color: #fff;
+  cursor: pointer;
 
   mat-icon {
-    height: 20px;
-    width: 20px;
-    font-size: 20px;
+    height: 23px;
+    width: 23px;
+    font-size: 23px;
   }
 }
 
-::ng-deep .build-tooltip  {
-  white-space: pre-line !important;
-  text-align: center;
+::ng-deep .fs-build-overlay-pane {
+  width: auto !important;
 }
