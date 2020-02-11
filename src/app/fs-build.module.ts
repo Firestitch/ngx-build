@@ -6,7 +6,8 @@ import { FsBuildComponent } from './components/build/build.component';
 import { FsBuildService } from './services/build.service';
 import { BuildConfig } from './interfaces/build-config';
 import { FS_BUILD_CONFIG } from './injectors';
-import { MatTooltipModule, MatIconModule } from '@angular/material';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   imports: [
@@ -23,7 +24,7 @@ import { MatTooltipModule, MatIconModule } from '@angular/material';
   ]
 })
 export class FsBuildModule {
-  static forRoot(config: BuildConfig = {}): ModuleWithProviders {
+  static forRoot(config: BuildConfig = {}): ModuleWithProviders<FsBuildModule> {
     return {
       ngModule: FsBuildModule,
       providers: [
