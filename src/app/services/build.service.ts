@@ -20,20 +20,19 @@ export class FsBuildService implements OnDestroy {
               private fsPrompt: FsPrompt,
               @Inject(FS_BUILD_CONFIG) private config: BuildConfig) {
     this.config = Object.assign({ enabled: true,
-                                  updateSecondsInterval: 30,
-                                  updateEnabled: true,
-                                  updatePath: 'assets/build.json',
-                                  updateOrigin: window.location.origin }, config);
+                                  interval: 30,
+                                  path: 'assets/build.json',
+                                  origin: window.location.origin }, config);
     this.listen();
   }
 
   public listen() {
 
-    if (this.config.updateEnabled === false) {
+    if (this.config.enabled === false) {
       return;
     }
 
-    timer(0, this.config.updateSeconds * 1000)
+    timer(0, this.config.interval * 1000)
     .pipe(
       takeUntil(this._destroy$),
       flatMap(() =>
@@ -47,7 +46,7 @@ export class FsBuildService implements OnDestroy {
       if (data.date) {
         const date = new Date(data.date);
 
-        if (this.config.updateEnabled && this.date && isAfter(date, this.date)) {
+        if (this.date && isAfter(date, this.date)) {
           this.fsPrompt.confirm({
             title: 'Upgrade',
             template: 'There is a new version of this app available. Would you like to update now?'
@@ -68,8 +67,8 @@ export class FsBuildService implements OnDestroy {
 
   private get() {
 
-    const url = new URL(this.config.updateOrigin);
-    url.pathname = this.config.updatePath;
+    const url = new URL(this.config.origin);
+    url.pathname = this.config.path;
     const config = {
       headers: new HttpHeaders()
         .set('Content-Type', 'application/json')

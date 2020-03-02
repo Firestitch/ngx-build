@@ -26,8 +26,8 @@ const routes: Routes = [
   bootstrap: [ AppComponent ],
   imports: [
     BrowserModule,
-    FsBuildModule.forRoot({ updateOrigin: 'http://localhost:4200',
-                            updateSeconds: 5 }),
+    FsBuildModule.forRoot({ origin: 'http://localhost:4200',
+                            interval: 5 }),
     BrowserAnimationsModule,
     AppMaterialModule,
     FormsModule,
