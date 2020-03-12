@@ -15,4 +15,8 @@
 
 ::ng-deep .fs-build-overlay-pane {
   width: auto !important;
+
+  .mat-dialog-content {
+    line-height: 22px;
+  }
 }

@@ -1,3 +1,6 @@
+import { BuildData } from './../../src/app/interfaces/build-data';
+import { environment } from './../environments/environment';
+import { FS_BUILD_DATA } from './../../src/app/injectors/build-data.injector';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
@@ -6,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
 import { FsMessageModule } from '@firestitch/message';
-import { FsBuildModule, FS_BUILD_CONFIG } from '@firestitch/package';
+import { FsBuildModule } from '@firestitch/package';
 import { FsLabelModule } from '@firestitch/label';
 import { ToastrModule } from 'ngx-toastr';
 
@@ -47,7 +50,18 @@ const routes: Routes = [
     KitchenSinkConfigureComponent
   ],
   providers: [
-
+    {
+      provide: FS_BUILD_DATA,
+      useFactory: (): BuildData => {
+        const env: any = environment;
+        env.build = env.build || {};
+        return {
+          name: env.build.name || 'Test Name',
+          date: env.build.date || new Date(),
+          version: env.build.version || 'Test Version'
+        }
+      }
+    }
   ]
 })
 export class PlaygroundModule {

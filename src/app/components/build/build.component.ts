@@ -1,4 +1,6 @@
-import { Component, OnDestroy, Input } from '@angular/core';
+import { FS_BUILD_DATA } from './../../injectors/build-data.injector';
+import { BuildData } from './../../interfaces/build-data';
+import { Component, OnDestroy, Input, Inject } from '@angular/core';
 import { FsBuildService } from '../../services/build.service';
 import { format, isValid } from 'date-fns';
 import { Subject } from 'rxjs';
@@ -13,15 +15,12 @@ import { FsPrompt } from '@firestitch/prompt';
 })
 export class FsBuildComponent implements OnDestroy {
 
-  @Input() name = '';
-  @Input() date;
-  @Input() platform;
-
   public buildTooltip;
   private _destroy$ = new Subject();
 
   constructor(private _fsBuild: FsBuildService,
-              private _prompt: FsPrompt) {
+              private _prompt: FsPrompt,
+              @Inject(FS_BUILD_DATA) public build: BuildData) {
 
     this._fsBuild.buildChange$
     .pipe(
@@ -29,8 +28,8 @@ export class FsBuildComponent implements OnDestroy {
     )
     .subscribe((data: any) => {
       if (data) {
-        this.date = data.date;
-        this.name = data.name;
+        this.build.date = data.date;
+        this.build.version = data.version;
       }
     });
   }
@@ -58,18 +57,16 @@ export class FsBuildComponent implements OnDestroy {
 
     const parts = [];
 
-    if (this.name) {
-      let name = this.name;
-
-      if (this.platform) {
-        name += ':' + this.platform;
-      }
-
-      parts.push('Name: ' + name);
+    if (this.build.name) {
+      parts.push('Name: ' + this.build.name);
     }
 
-    if (isValid(new Date(this.date))) {
-      parts.push('Date: ' + format(new Date(this.date), 'PPpp'));
+    if (this.build.version) {
+      parts.push('Version: ' + this.build.version);
+    }
+
+    if (isValid(new Date(this.build.date))) {
+      parts.push('Date: ' + format(new Date(this.build.date), 'PPpp'));
     }
 
     return parts.join('<br>');

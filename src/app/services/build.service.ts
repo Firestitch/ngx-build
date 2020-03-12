@@ -1,3 +1,5 @@
+import { BuildData } from './../interfaces/build-data';
+import { FS_BUILD_DATA } from './../injectors/build-data.injector';
 import { Injectable, OnDestroy, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FsPrompt } from '@firestitch/prompt';
@@ -19,6 +21,7 @@ export class FsBuildService implements OnDestroy {
   constructor(private http: HttpClient,
               private fsPrompt: FsPrompt,
               @Inject(FS_BUILD_CONFIG) private config: BuildConfig) {
+
     this.config = Object.assign({ enabled: true,
                                   interval: 30,
                                   path: 'assets/build.json',
