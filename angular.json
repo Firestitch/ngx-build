@@ -21,7 +21,8 @@
             "tsConfig": "playground/tsconfig.app.json",
             "assets": [
               "playground/favicon.ico",
-              "playground/assets"
+              "playground/assets",
+              "playground/assets/build.json"
             ],
             "styles": [
               "playground/styles.scss"

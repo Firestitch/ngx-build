@@ -29,7 +29,7 @@ const routes: Routes = [
   bootstrap: [ AppComponent ],
   imports: [
     BrowserModule,
-    FsBuildModule.forRoot({ origin: 'http://localhost:4200',
+    FsBuildModule.forRoot({ origin: 'http://localhost:4700',
                             interval: 5 }),
     BrowserAnimationsModule,
     AppMaterialModule,

@@ -1,11 +1,9 @@
-import { BuildData } from './../interfaces/build-data';
-import { FS_BUILD_DATA } from './../injectors/build-data.injector';
 import { Injectable, OnDestroy, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FsPrompt } from '@firestitch/prompt';
-import { isAfter } from 'date-fns';
+import { isAfter, isValid } from 'date-fns';
 import { Subject, timer, of } from 'rxjs';
-import { flatMap, takeUntil, catchError } from 'rxjs/operators';
+import { flatMap, takeUntil, catchError, skipWhile } from 'rxjs/operators';
 import { FS_BUILD_CONFIG } from '../injectors';
 import { BuildConfig } from '../interfaces/build-config';
 
@@ -13,9 +11,10 @@ import { BuildConfig } from '../interfaces/build-config';
 @Injectable()
 export class FsBuildService implements OnDestroy {
 
-  private date: Date;
-
   public buildChange$ = new Subject();
+
+  private _date: Date;
+  private _prompted = false;
   private _destroy$ = new Subject();
 
   constructor(private http: HttpClient,
@@ -40,30 +39,40 @@ export class FsBuildService implements OnDestroy {
       takeUntil(this._destroy$),
       flatMap(() =>
         this.get()
-        .pipe(
-          catchError((err, o) => of())
-        )
-      ),
+          .pipe(
+            catchError((err, o) => of())
+          )
+      )
     )
     .subscribe((data: any) => {
       if (data.date) {
         const date = new Date(data.date);
 
-        if (this.date && isAfter(date, this.date)) {
-          this.fsPrompt.confirm({
-            title: 'Upgrade',
-            template: 'There is a new version of this app available. Would you like to update now?'
-          })
-          .pipe(
-            takeUntil(this._destroy$)
-          )
-          .subscribe(() => {
-            window.location.reload(true);
-          });
-        }
+        if (isValid(date)) {
 
-        this.date = date;
-        this.buildChange$.next(data);
+          if (this._date && isAfter(date, this._date)) {
+
+            if (!this._prompted) {
+              this._prompted = true;
+              this.fsPrompt.confirm({
+                title: 'Upgrade',
+                template: 'There is a new version of this app available. Would you like to update now?'
+              })
+                .pipe(
+                  takeUntil(this._destroy$)
+                )
+                .subscribe(() => {
+                  window.location.reload(true);
+                },
+                  () => {
+                    this._prompted = false;
+                  });
+            }
+          }
+
+          this._date = date;
+          this.buildChange$.next(data);
+        }
       }
     });
   }
@@ -84,4 +93,5 @@ export class FsBuildService implements OnDestroy {
     this._destroy$.next();
     this._destroy$.complete();
   }
+
 }
