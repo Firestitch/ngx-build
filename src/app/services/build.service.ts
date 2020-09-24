@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FsPrompt } from '@firestitch/prompt';
 import { isAfter, isValid } from 'date-fns';
 import { Subject, timer, of } from 'rxjs';
-import { flatMap, takeUntil, catchError, skipWhile } from 'rxjs/operators';
+import { flatMap, takeUntil, catchError } from 'rxjs/operators';
 import { FS_BUILD_CONFIG } from '../injectors';
 import { BuildConfig } from '../interfaces/build-config';
 
@@ -17,14 +17,19 @@ export class FsBuildService implements OnDestroy {
   private _prompted = false;
   private _destroy$ = new Subject();
 
-  constructor(private http: HttpClient,
-              private fsPrompt: FsPrompt,
-              @Inject(FS_BUILD_CONFIG) private config: BuildConfig) {
+  constructor(
+    private http: HttpClient,
+    private fsPrompt: FsPrompt,
+    @Inject(FS_BUILD_CONFIG) private config: BuildConfig,
+  ) {
+    this.config = {
+      enabled: true,
+      interval: 30,
+      path: 'assets/build.json',
+      origin: window.location.origin,
+      ...config,
+    };
 
-    this.config = Object.assign({ enabled: true,
-                                  interval: 30,
-                                  path: 'assets/build.json',
-                                  origin: window.location.origin }, config);
     this.listen();
   }
 
@@ -51,12 +56,12 @@ export class FsBuildService implements OnDestroy {
         if (isValid(date)) {
 
           if (this._date && isAfter(date, this._date)) {
-
+            const message = data.version ? `Newer version ${data.version} of this app is available` : 'There is a newer version of this app available';
             if (!this._prompted) {
               this._prompted = true;
               this.fsPrompt.confirm({
-                title: 'Upgrade',
-                template: 'There is a new version of this app available. Would you like to update now?'
+                title: 'New App Available',
+                template: `${message}. Would you like to update now?`,
               })
                 .pipe(
                   takeUntil(this._destroy$)
