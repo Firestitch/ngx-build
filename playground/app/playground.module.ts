@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
 import { FsMessageModule } from '@firestitch/message';
-import { FsBuildModule } from '@firestitch/package';
+import { BuildReloadMethod, FsBuildModule } from '@firestitch/package';
 import { FsLabelModule } from '@firestitch/label';
 import { ToastrModule } from 'ngx-toastr';
 
@@ -23,14 +23,18 @@ import { KitchenSinkConfigureComponent } from './components/kitchen-sink-configu
 
 const routes: Routes = [
   { path: '', component: ExamplesComponent },
+  { path: 'navigate', component: ExamplesComponent },
 ];
 
 @NgModule({
   bootstrap: [ AppComponent ],
   imports: [
     BrowserModule,
-    FsBuildModule.forRoot({ origin: 'http://localhost:4700',
-                            interval: 5 }),
+    FsBuildModule.forRoot({
+      origin: 'http://localhost:4700',
+      interval: 5,
+      reloadMethod: BuildReloadMethod.Navigation,
+    }),
     BrowserAnimationsModule,
     AppMaterialModule,
     FormsModule,

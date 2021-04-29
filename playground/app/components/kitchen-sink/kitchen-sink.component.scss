@@ -1,3 +1,11 @@
 ::ng-deep fs-build mat-icon {
   color: #333;
 }
+
+fieldset {
+  display: flex;
+  align-items: center;
+  a, button {
+    margin-right: 5px;
+  }
+}
