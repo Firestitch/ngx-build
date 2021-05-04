@@ -1,4 +1,4 @@
-import { Component, OnDestroy, Inject } from '@angular/core';
+import { Component, OnDestroy, Inject, OnInit } from '@angular/core';
 
 import { FsPrompt } from '@firestitch/prompt';
 
@@ -17,15 +17,19 @@ import { BuildData } from './../../interfaces/build-data';
   templateUrl: 'build.component.html',
   styleUrls: [ 'build.component.scss' ],
 })
-export class FsBuildComponent implements OnDestroy {
+export class FsBuildComponent implements OnDestroy, OnInit {
 
   private _destroy$ = new Subject();
+  private _build: BuildData;
 
   constructor(
     private _buildService: FsBuildService,
     private _prompt: FsPrompt,
-    @Inject(FS_BUILD_DATA) private _build: BuildData,
   ) {
+  }
+
+  public ngOnInit(): void {
+    this._build = this._buildService.build;
     this._buildService.buildChange$
     .pipe(
       takeUntil(this._destroy$)

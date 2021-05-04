@@ -31,7 +31,8 @@ const routes: Routes = [
   imports: [
     BrowserModule,
     FsBuildModule.forRoot({
-      origin: 'http://localhost:4700',
+      origin: 'http://firestitch-dev.s3.us-west-2.amazonaws.com',
+      path: 'pub/build.json',
       interval: 5,
       reloadMethod: BuildReloadMethod.Navigation,
     }),

@@ -1,10 +1,10 @@
 import { Injectable, OnDestroy, Inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 import { FsPrompt } from '@firestitch/prompt';
 
-import { Subject, timer, of, Observable } from 'rxjs';
+import { Subject, timer, of, Observable, BehaviorSubject } from 'rxjs';
 import { takeUntil, catchError, map, filter, take, switchMap } from 'rxjs/operators';
 
 import { isAfter, isValid } from 'date-fns';
@@ -18,8 +18,7 @@ import { BuildReloadMethod } from '../enums/build-reload-method.enum';
 @Injectable()
 export class FsBuildService implements OnDestroy {
 
-  public buildChange$ = new Subject();
-
+  private _buildChange$ = new BehaviorSubject<BuildData>(null);
   private _date: Date;
   private _destroy$ = new Subject();
   private _pendingUpdate = false;
@@ -33,15 +32,24 @@ export class FsBuildService implements OnDestroy {
     this.listen();
   }
 
+  public get build(): BuildData {
+    return this._buildChange$.getValue();
+  }
+
+  public get buildChange$() {
+    return this._buildChange$
+      .pipe(
+        filter((build) => !!build),
+        takeUntil(this._destroy$),
+      );
+  }
+
   public listen() {
     if (this.config.enabled === false) {
       return;
     }
 
     this.buildChange$
-      .pipe(
-        takeUntil(this._destroy$),
-      )
       .subscribe((data: BuildData) => {
         this._date = data.date;
       });
@@ -76,7 +84,7 @@ export class FsBuildService implements OnDestroy {
             break;
         }
       }
-      this.buildChange$.next(data);
+      this._buildChange$.next(data);
     }
   }
 
@@ -84,8 +92,7 @@ export class FsBuildService implements OnDestroy {
     const url = new URL(this.config.origin);
     url.pathname = this.config.path;
     const config = {
-      headers: new HttpHeaders()
-        .set('Content-Type', 'application/json')
+      headers: null,
     };
 
     return this._http.get(url.toString(), config)
