@@ -1,9 +1,12 @@
-import { BuildReloadMethod } from '../enums/build-reload-method.enum';
+import { CompareMethod, UpdateAction } from '../enums';
+import { BuildData } from './build-data';
+
 
 export interface BuildConfig {
   interval?: number,
-  enabled?: boolean,
   path?: string,
   origin?: string,
-  reloadMethod?: BuildReloadMethod,
+  updateAction?: UpdateAction,
+  compareMethod?: CompareMethod,
+  updateClick?: (build: BuildData) => void,
 }

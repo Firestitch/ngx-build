@@ -30,7 +30,7 @@ export class FsBuildComponent implements OnDestroy, OnInit {
 
   public ngOnInit(): void {
     this._build = this._buildService.build;
-    this._buildService.buildChange$
+    this._buildService.build$
     .pipe(
       takeUntil(this._destroy$)
     )

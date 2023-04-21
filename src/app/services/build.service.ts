@@ -3,60 +3,75 @@ import { NavigationEnd, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 import { FsPrompt } from '@firestitch/prompt';
+import { parse } from '@firestitch/date';
 
 import { Subject, timer, of, Observable, BehaviorSubject } from 'rxjs';
-import { takeUntil, catchError, map, filter, take, switchMap } from 'rxjs/operators';
+import { takeUntil, catchError, filter, take, switchMap } from 'rxjs/operators';
 
-import { isAfter, isValid } from 'date-fns';
+import { isAfter } from 'date-fns';
 
 import { FS_BUILD_CONFIG } from '../injectors';
 import { BuildConfig } from '../interfaces/build-config';
 import { BuildData } from '../interfaces';
-import { BuildReloadMethod } from '../enums/build-reload-method.enum';
+import { CompareMethod, UpdateAction } from '../enums';
 
 
 @Injectable()
 export class FsBuildService implements OnDestroy {
 
-  private _buildChange$ = new BehaviorSubject<BuildData>(null);
-  private _date: Date;
+  private _build$ = new BehaviorSubject<BuildData>(null);
   private _destroy$ = new Subject();
   private _pendingUpdate = false;
 
   constructor(
+    @Inject(FS_BUILD_CONFIG) private _config: BuildConfig,
     private _http: HttpClient,
     private _prompt: FsPrompt,
     private _router: Router,
-    @Inject(FS_BUILD_CONFIG) private config: BuildConfig,
-  ) {
-    this.listen();
-  }
+  ) {}
 
   public get build(): BuildData {
-    return this._buildChange$.getValue();
+    return this._build$.getValue();
   }
 
-  public get buildChange$() {
-    return this._buildChange$
+  public set build(build: BuildData) {
+    build = {
+      ...build,
+      version: build.version ? String(build.version) : null,
+      date: parse(build.date),
+    };
+
+    if (this.hasUpdate(build)) {
+      this._pendingUpdate = true;
+      switch (this._config.updateAction) {
+        case UpdateAction.PromptUpdate:
+          this._processPromptUpdate(build);
+          break;
+          case UpdateAction.NavigationUpdate:
+            this._processNavigationUpdate();
+            break;
+          case UpdateAction.ManualUpdate:
+            this._processManualUpdate();
+            break;
+      }
+    }
+
+    this._build$.next(build);
+  }
+
+  public get build$(): Observable<BuildData> {
+    return this._build$.asObservable()
       .pipe(
-        filter((build) => !!build),
         takeUntil(this._destroy$),
       );
   }
 
-  public listen() {
-    if (this.config.enabled === false) {
-      return;
-    }
+  public listen(config?: { delay?: number, interval?: number }) {
+    const interval = (config?.interval || this._config.interval) * 1000;
+    const delay = (config?.delay || 0) * 1000;
 
-    this.buildChange$
-      .subscribe((data: BuildData) => {
-        this._date = data.date;
-      });
-
-    timer(0, this.config.interval * 1000)
+    timer(delay, interval)
       .pipe(
-        takeUntil(this._destroy$),
         filter(() => !this._pendingUpdate),
         switchMap(() =>
           this.get()
@@ -65,45 +80,34 @@ export class FsBuildService implements OnDestroy {
             )
         ),
         filter((data) => !!data),
+        takeUntil(this._destroy$),
     )
     .subscribe((data: BuildData) => {
-      this.update(data);
+      this.build = data;
     });
   }
 
-  public update(data: BuildData): void {
-    if (isValid(data.date)) {
-      if (this._date && isAfter(data.date, this._date)) {
-        this._pendingUpdate = true;
-        switch (this.config.reloadMethod) {
-          case BuildReloadMethod.Prompt:
-            this._processPrompt(data);
-            break;
-          case BuildReloadMethod.Navigation:
-            this._processNavigation();
-            break;
-        }
-      }
-      this._buildChange$.next(data);
-    }
+  public hasUpdate(build: BuildData): boolean {
+    if(this._config.compareMethod === CompareMethod.Date) {
+      return this.build?.date && isAfter(build.date, this.build.date);
+    } 
+
+    if(this._config.compareMethod === CompareMethod.Version) {
+      return this.build?.version && build.version !== this.build.version;
+    } 
+
+    return false;
   }
 
   public get(): Observable<any> {
-    const url = new URL(this.config.origin);
-    url.pathname = this.config.path;
+    const url = new URL(this._config.origin);
+    url.pathname = this._config.path;
+
     const config = {
       headers: null,
     };
 
-    return this._http.get(url.toString(), config)
-      .pipe(
-        map((data: any) => {
-          return {
-            ...data,
-            date: new Date(data.date),
-          }
-        }),
-      );
+    return this._http.get(url.toString(), config);
   }
 
   public ngOnDestroy(): void {
@@ -111,7 +115,28 @@ export class FsBuildService implements OnDestroy {
     this._destroy$.complete();
   }
 
-  private _processNavigation(): void {
+  private _processManualUpdate(): void {
+    this._prompt.confirm({
+      title: 'New App Version Available',
+      template: `The app requires an update`,
+      escape: false,
+      buttons: [
+        {
+          label: 'Update Now',
+        },
+      ]
+    })
+      .pipe(
+        takeUntil(this._destroy$),
+      )
+      .subscribe(() => {
+        if(this._config.updateClick) {
+          this._config.updateClick(this.build);
+        }
+      });
+  }
+
+  private _processNavigationUpdate(): void {
     this._router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -121,7 +146,7 @@ export class FsBuildService implements OnDestroy {
       .subscribe(this._reload);
   }
 
-  private _processPrompt(data: BuildData): void {
+  private _processPromptUpdate(data: BuildData): void {
     const message = data.version ? `Newer version ${data.version} of this app is available` : 'There is a newer version of this app available';
 
     this._prompt.confirm({
@@ -129,13 +154,15 @@ export class FsBuildService implements OnDestroy {
       template: `${message}. Would you like to update now?`,
     })
       .pipe(
-        takeUntil(this._destroy$)
-      )
-      .subscribe({
-        next: this._reload,
-        error: () => {
+        takeUntil(this._destroy$),
+        catchError(() => {
           this._pendingUpdate = false;
-        },
+
+          return of(null);
+        }),
+      )
+      .subscribe(() => {
+        this._reload();
       });
   }
 

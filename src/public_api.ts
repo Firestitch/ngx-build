@@ -12,4 +12,4 @@ export { FS_BUILD_DATA } from './app/injectors/build-data.injector';
 
 export { FsBuildService } from './app/services/build.service';
 
-export { BuildReloadMethod } from './app/enums/build-reload-method.enum';
+export * from './app/enums';

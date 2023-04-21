@@ -1,6 +1,26 @@
 <fs-build></fs-build>
 
-<fieldset>
-  <button mat-raised-button color="primary" (click)="update()">Update</button>
+  <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="dateUpdate()">
+    Date Update 
+  </button>
+  
+  <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="versionUpdate()">
+    Version Update
+  </button>
+
   <a mat-raised-button [routerLink]="['/navigate']">Navigate Away</a>
+
+
+  
+<fieldset>
+  <legend>Build</legend>
+  {{build|json}}
 </fieldset>
+
+

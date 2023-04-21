@@ -1,7 +1,5 @@
 import { BuildData } from './../../src/app/interfaces/build-data';
-import { environment } from './../environments/environment';
-import { FS_BUILD_DATA } from './../../src/app/injectors/build-data.injector';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
@@ -9,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
 import { FsMessageModule } from '@firestitch/message';
-import { BuildReloadMethod, FsBuildModule } from '@firestitch/package';
+import { UpdateAction, FsBuildModule, FsBuildService, CompareMethod } from '@firestitch/package';
 import { FsLabelModule } from '@firestitch/label';
 import { ToastrModule } from 'ngx-toastr';
 
@@ -20,6 +18,8 @@ import {
 } from './components';
 import { AppComponent } from './app.component';
 import { KitchenSinkConfigureComponent } from './components/kitchen-sink-configure';
+import { of } from 'rxjs';
+import { delay, tap } from 'rxjs/operators';
 
 const routes: Routes = [
   { path: '', component: ExamplesComponent },
@@ -34,7 +34,11 @@ const routes: Routes = [
       origin: 'http://firestitch-dev.s3.us-west-2.amazonaws.com',
       path: 'pub/build.json',
       interval: 5,
-      reloadMethod: BuildReloadMethod.Navigation,
+      updateAction: UpdateAction.ManualUpdate,
+      compareMethod: CompareMethod.Version,
+      updateClick: (build: BuildData) => {
+        console.log('updateClick', build);
+      }
     }),
     BrowserAnimationsModule,
     AppMaterialModule,
@@ -55,18 +59,40 @@ const routes: Routes = [
     KitchenSinkConfigureComponent
   ],
   providers: [
+    // {
+    //   provide: FS_BUILD_DATA,
+    //   useFactory: (): BuildData => {
+    //     const env: any = environment;
+    //     env.build = env.build || {};
+
+    //     return {
+    //       name: env.build.name || 'Test Name',
+    //       date: env.build.date || new Date(),
+    //       version: env.build.version || 'Test Version'
+    //     }
+    //   }
+    // },
     {
-      provide: FS_BUILD_DATA,
-      useFactory: (): BuildData => {
-        const env: any = environment;
-        env.build = env.build || {};
-        return {
-          name: env.build.name || 'Test Name',
-          date: env.build.date || new Date(),
-          version: env.build.version || 'Test Version'
-        }
-      }
-    }
+      provide: APP_INITIALIZER,
+      useFactory: (
+        buildService: FsBuildService,
+      ) => () => {
+        return of(null)
+          .pipe(
+            tap(() => {
+              buildService.build = {
+
+              };
+            }),
+            tap(() => buildService.listen({
+              delay: 5
+            })),
+          )
+          .toPromise();
+      },
+      multi: true,
+      deps: [FsBuildService],
+    },
   ]
 })
 export class PlaygroundModule {

@@ -10,7 +10,7 @@ import { FsBuildComponent } from './components/build/build.component';
 import { FsBuildService } from './services/build.service';
 import { BuildConfig } from './interfaces/build-config';
 import { FS_BUILD_CONFIG } from './injectors';
-import { BuildReloadMethod } from './enums/build-reload-method.enum';
+import { CompareMethod, UpdateAction } from './enums';
 
 
 @NgModule({
@@ -29,17 +29,21 @@ import { BuildReloadMethod } from './enums/build-reload-method.enum';
 })
 export class FsBuildModule {
   static forRoot(config: BuildConfig = {}): ModuleWithProviders<FsBuildModule> {
+    const defaultConfig: BuildConfig = {
+      interval: 30,
+      path: 'assets/build.json',
+      origin: window.location.origin,
+      updateAction: UpdateAction.PromptUpdate,
+      compareMethod: CompareMethod.Date,
+    };
+
     return {
       ngModule: FsBuildModule,
       providers: [
         {
           provide: FS_BUILD_CONFIG,
           useValue: {
-            enabled: true,
-            interval: 30,
-            path: 'assets/build.json',
-            origin: window.location.origin,
-            reloadMethod: BuildReloadMethod.Prompt,
+            ...defaultConfig,
             ...config,
           },
         },
