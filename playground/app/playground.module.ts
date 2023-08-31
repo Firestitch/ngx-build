@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
 import { FsMessageModule } from '@firestitch/message';
-import { UpdateAction, FsBuildModule, FsBuildService, CompareMethod } from '@firestitch/package';
+import { UpdateAction, FsBuildModule, FsBuildService, CompareMethod, FS_BUILD_DATA, BuildConfig, FS_BUILD_CONFIG } from '@firestitch/package';
 import { FsLabelModule } from '@firestitch/label';
 import { ToastrModule } from 'ngx-toastr';
 
@@ -30,16 +30,7 @@ const routes: Routes = [
   bootstrap: [ AppComponent ],
   imports: [
     BrowserModule,
-    FsBuildModule.forRoot({
-      origin: 'http://firestitch-dev.s3.us-west-2.amazonaws.com',
-      path: 'pub/build.json',
-      interval: 5,
-      updateAction: UpdateAction.ManualUpdate,
-      compareMethod: CompareMethod.Version,
-      updateClick: (build: BuildData) => {
-        console.log('updateClick', build);
-      }
-    }),
+    FsBuildModule,
     BrowserAnimationsModule,
     AppMaterialModule,
     FormsModule,
@@ -59,19 +50,21 @@ const routes: Routes = [
     KitchenSinkConfigureComponent
   ],
   providers: [
-    // {
-    //   provide: FS_BUILD_DATA,
-    //   useFactory: (): BuildData => {
-    //     const env: any = environment;
-    //     env.build = env.build || {};
-
-    //     return {
-    //       name: env.build.name || 'Test Name',
-    //       date: env.build.date || new Date(),
-    //       version: env.build.version || 'Test Version'
-    //     }
-    //   }
-    // },
+    {
+      provide: FS_BUILD_CONFIG,
+      useFactory: (): BuildConfig => {
+        return {
+          origin: 'http://firestitch-dev.s3.us-west-2.amazonaws.com',
+          path: 'pub/build.json',
+          interval: 5,
+          updateAction: UpdateAction.ManualUpdate,
+          compareMethod: CompareMethod.Version,
+          updateClick: (build: BuildData) => {
+            console.log('updateClick', build);
+          },
+        }
+      }
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: (

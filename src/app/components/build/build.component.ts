@@ -8,7 +8,6 @@ import { takeUntil } from 'rxjs/operators';
 import { format, isValid } from 'date-fns';
 
 import { FsBuildService } from '../../services/build.service';
-import { FS_BUILD_DATA } from './../../injectors/build-data.injector';
 import { BuildData } from './../../interfaces/build-data';
 
 

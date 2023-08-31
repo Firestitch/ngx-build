@@ -28,27 +28,27 @@ import { CompareMethod, UpdateAction } from './enums';
   ]
 })
 export class FsBuildModule {
-  static forRoot(config: BuildConfig = {}): ModuleWithProviders<FsBuildModule> {
-    const defaultConfig: BuildConfig = {
-      interval: 30,
-      path: 'assets/build.json',
-      origin: window.location.origin,
-      updateAction: UpdateAction.PromptUpdate,
-      compareMethod: CompareMethod.Date,
-    };
+  // static forRoot(config: BuildConfig = {}): ModuleWithProviders<FsBuildModule> {
+  //   const defaultConfig: BuildConfig = {
+  //     interval: 30,
+  //     path: 'assets/build.json',
+  //     origin: window.location.origin,
+  //     updateAction: UpdateAction.PromptUpdate,
+  //     compareMethod: CompareMethod.Date,
+  //   };
 
-    return {
-      ngModule: FsBuildModule,
-      providers: [
-        {
-          provide: FS_BUILD_CONFIG,
-          useValue: {
-            ...defaultConfig,
-            ...config,
-          },
-        },
-        FsBuildService,
-      ],
-    };
-  }
+  //   return {
+  //     ngModule: FsBuildModule,
+  //     providers: [
+  //       {
+  //         provide: FS_BUILD_CONFIG,
+  //         useValue: {
+  //           ...defaultConfig,
+  //           ...config,
+  //         },
+  //       },
+  //       FsBuildService,
+  //     ],
+  //   };
+  // }
 }

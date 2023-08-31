@@ -1,5 +1,7 @@
-::ng-deep fs-build mat-icon {
-  color: #333;
+:host ::ng-deep {
+  .mat-raised-button + .mat-raised-button {
+    margin-left: 5px;
+  }
 }
 
 fieldset {

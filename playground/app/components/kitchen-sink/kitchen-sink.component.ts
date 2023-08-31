@@ -5,8 +5,8 @@ import { FsBuildService } from '@firestitch/package';
 
 @Component({
   selector: 'kitchen-sink',
-  templateUrl: 'kitchen-sink.component.html',
-  styleUrls: ['kitchen-sink.component.scss'],
+  templateUrl: './kitchen-sink.component.html',
+  styleUrls: ['./kitchen-sink.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KitchenSinkComponent {

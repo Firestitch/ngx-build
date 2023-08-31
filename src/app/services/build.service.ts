@@ -6,7 +6,7 @@ import { FsPrompt } from '@firestitch/prompt';
 import { parse } from '@firestitch/date';
 
 import { Subject, timer, of, Observable, BehaviorSubject } from 'rxjs';
-import { takeUntil, catchError, filter, take, switchMap } from 'rxjs/operators';
+import { takeUntil, catchError, filter, take, switchMap, finalize } from 'rxjs/operators';
 
 import { isAfter } from 'date-fns';
 
@@ -16,7 +16,9 @@ import { BuildData } from '../interfaces';
 import { CompareMethod, UpdateAction } from '../enums';
 
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class FsBuildService implements OnDestroy {
 
   private _build$ = new BehaviorSubject<BuildData>(null);
@@ -80,7 +82,7 @@ export class FsBuildService implements OnDestroy {
             )
         ),
         filter((data) => !!data),
-        takeUntil(this._destroy$),
+        takeUntil(this._destroy$),  
     )
     .subscribe((data: BuildData) => {
       this.build = data;
@@ -149,17 +151,16 @@ export class FsBuildService implements OnDestroy {
   private _processPromptUpdate(data: BuildData): void {
     const message = data.version ? `Newer version ${data.version} of this app is available` : 'There is a newer version of this app available';
 
-    this._prompt.confirm({
+    this._prompt
+    .confirm({
       title: 'New App Version Available',
       template: `${message}. Would you like to update now?`,
     })
-      .pipe(
-        takeUntil(this._destroy$),
-        catchError(() => {
+      .pipe(        
+        finalize(() => {
           this._pendingUpdate = false;
-
-          return of(null);
         }),
+        takeUntil(this._destroy$),
       )
       .subscribe(() => {
         this._reload();
