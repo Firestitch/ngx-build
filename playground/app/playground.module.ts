@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
 import { FsMessageModule } from '@firestitch/message';
-import { UpdateAction, FsBuildModule, FsBuildService, CompareMethod, FS_BUILD_DATA, BuildConfig, FS_BUILD_CONFIG } from '@firestitch/package';
+import { UpdateAction, FsBuildModule, FsBuildService, CompareMethod, BuildConfig, FS_BUILD_CONFIG } from '@firestitch/package';
 import { FsLabelModule } from '@firestitch/label';
 import { ToastrModule } from 'ngx-toastr';
 
