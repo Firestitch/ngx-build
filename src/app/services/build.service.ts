@@ -102,8 +102,8 @@ export class FsBuildService implements OnDestroy {
   }
 
   public get(): Observable<any> {
-    const url = new URL(this._config.origin);
-    url.pathname = this._config.path;
+    const url = new URL(this._config.origin || location.origin);
+    url.pathname = this._config.path || 'assets/build.json';
 
     const config = {
       headers: null,
