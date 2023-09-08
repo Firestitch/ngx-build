@@ -19,7 +19,7 @@ import {
 import { AppComponent } from './app.component';
 import { KitchenSinkConfigureComponent } from './components/kitchen-sink-configure';
 import { of } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 const routes: Routes = [
   { path: '', component: ExamplesComponent },
@@ -77,9 +77,7 @@ const routes: Routes = [
 
               };
             }),
-            tap(() => buildService.listen({
-              delay: 5
-            })),
+            tap(() => buildService.listen({ delay: 5 })),
           )
           .toPromise();
       },

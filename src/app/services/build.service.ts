@@ -30,7 +30,16 @@ export class FsBuildService implements OnDestroy {
     private _http: HttpClient,
     private _prompt: FsPrompt,
     private _router: Router,
-  ) {}
+  ) {
+    this._config = {
+      interval: 60,
+      path: 'assets/build.json',
+      origin: window.location.origin,
+      updateAction: UpdateAction.PromptUpdate,
+      compareMethod: CompareMethod.Date,
+      ...this._config,
+    };
+  }
 
   public get build(): BuildData {
     return this._build$.getValue();
@@ -49,12 +58,12 @@ export class FsBuildService implements OnDestroy {
         case UpdateAction.PromptUpdate:
           this._processPromptUpdate(build);
           break;
-          case UpdateAction.NavigationUpdate:
-            this._processNavigationUpdate();
-            break;
-          case UpdateAction.ManualUpdate:
-            this._processManualUpdate();
-            break;
+        case UpdateAction.NavigationUpdate:
+          this._processNavigationUpdate();
+          break;
+        case UpdateAction.ManualUpdate:
+          this._processManualUpdate();
+          break;
       }
     }
 
@@ -82,28 +91,28 @@ export class FsBuildService implements OnDestroy {
             )
         ),
         filter((data) => !!data),
-        takeUntil(this._destroy$),  
-    )
-    .subscribe((data: BuildData) => {
-      this.build = data;
-    });
+        takeUntil(this._destroy$),
+      )
+      .subscribe((data: BuildData) => {
+        this.build = data;
+      });
   }
 
   public hasUpdate(build: BuildData): boolean {
-    if(this._config.compareMethod === CompareMethod.Date) {
+    if (this._config.compareMethod === CompareMethod.Date) {
       return this.build?.date && isAfter(build.date, this.build.date);
-    } 
+    }
 
-    if(this._config.compareMethod === CompareMethod.Version) {
+    if (this._config.compareMethod === CompareMethod.Version) {
       return this.build?.version && build.version !== this.build.version;
-    } 
+    }
 
     return false;
   }
 
   public get(): Observable<any> {
-    const url = new URL(this._config.origin || location.origin);
-    url.pathname = this._config.path || 'assets/build.json';
+    const url = new URL(this._config.origin);
+    url.pathname = this._config.path;
 
     const config = {
       headers: null,
@@ -132,7 +141,7 @@ export class FsBuildService implements OnDestroy {
         takeUntil(this._destroy$),
       )
       .subscribe(() => {
-        if(this._config.updateClick) {
+        if (this._config.updateClick) {
           this._config.updateClick(this.build);
         }
       });
@@ -152,11 +161,11 @@ export class FsBuildService implements OnDestroy {
     const message = data.version ? `Newer version ${data.version} of this app is available` : 'There is a newer version of this app available';
 
     this._prompt
-    .confirm({
-      title: 'New App Version Available',
-      template: `${message}. Would you like to update now?`,
-    })
-      .pipe(        
+      .confirm({
+        title: 'New App Version Available',
+        template: `${message}. Would you like to update now?`,
+      })
+      .pipe(
         finalize(() => {
           this._pendingUpdate = false;
         }),
