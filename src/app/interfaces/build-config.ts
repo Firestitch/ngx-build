@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import { CompareMethod, UpdateAction } from '../enums';
 import { BuildData } from './build-data';
 

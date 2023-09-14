@@ -1,4 +1,4 @@
-import { Component, OnDestroy, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { FsPrompt } from '@firestitch/prompt';
 
@@ -14,7 +14,8 @@ import { BuildData } from './../../interfaces/build-data';
 @Component({
   selector: 'fs-build',
   templateUrl: 'build.component.html',
-  styleUrls: [ 'build.component.scss' ],
+  styleUrls: ['build.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FsBuildComponent implements OnDestroy, OnInit {
 
@@ -30,12 +31,12 @@ export class FsBuildComponent implements OnDestroy, OnInit {
   public ngOnInit(): void {
     this._build = this._buildService.build;
     this._buildService.build$
-    .pipe(
-      takeUntil(this._destroy$)
-    )
-    .subscribe((build: BuildData) => {
-      this._build = build;
-    });
+      .pipe(
+        takeUntil(this._destroy$)
+      )
+      .subscribe((build: BuildData) => {
+        this._build = build;
+      });
   }
 
   public ngOnDestroy(): void {

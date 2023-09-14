@@ -45,6 +45,7 @@ export class KitchenSinkComponent {
     this._buildService.build$
       .subscribe((build) => {
         this.build = build;
+        debugger;
         this._cdRef.markForCheck();
       });
   }

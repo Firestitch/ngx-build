@@ -1,25 +1,25 @@
-import { BuildData } from './../../src/app/interfaces/build-data';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Routes } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule, Routes } from '@angular/router';
+import { BuildData } from './../../src/app/interfaces/build-data';
 
 import { FsExampleModule } from '@firestitch/example';
-import { FsMessageModule } from '@firestitch/message';
-import { UpdateAction, FsBuildModule, FsBuildService, CompareMethod, BuildConfig, FS_BUILD_CONFIG } from '@firestitch/package';
 import { FsLabelModule } from '@firestitch/label';
+import { FsMessageModule } from '@firestitch/message';
+import { BuildConfig, CompareMethod, FS_BUILD_CONFIG, FsBuildModule, FsBuildService } from '@firestitch/package';
 import { ToastrModule } from 'ngx-toastr';
 
-import { AppMaterialModule } from './material.module';
-import {
-  KitchenSinkComponent,
-  ExamplesComponent
-} from './components';
-import { AppComponent } from './app.component';
-import { KitchenSinkConfigureComponent } from './components/kitchen-sink-configure';
 import { of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { AppComponent } from './app.component';
+import {
+  ExamplesComponent,
+  KitchenSinkComponent
+} from './components';
+import { KitchenSinkConfigureComponent } from './components/kitchen-sink-configure';
+import { AppMaterialModule } from './material.module';
 
 const routes: Routes = [
   { path: '', component: ExamplesComponent },
@@ -27,7 +27,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  bootstrap: [ AppComponent ],
+  bootstrap: [AppComponent],
   imports: [
     BrowserModule,
     FsBuildModule,
@@ -56,8 +56,7 @@ const routes: Routes = [
         return {
           origin: 'http://firestitch-dev.s3.us-west-2.amazonaws.com',
           path: 'pub/build.json',
-          interval: 5,
-          updateAction: UpdateAction.ManualUpdate,
+          //updateAction: UpdateAction.ManualUpdate,
           compareMethod: CompareMethod.Version,
           updateClick: (build: BuildData) => {
             console.log('updateClick', build);
@@ -77,7 +76,7 @@ const routes: Routes = [
 
               };
             }),
-            tap(() => buildService.listen({ delay: 5 })),
+            tap(() => buildService.listen({ delay: 5, interval: 10 })),
           )
           .toPromise();
       },

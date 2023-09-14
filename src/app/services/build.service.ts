@@ -1,19 +1,19 @@
-import { Injectable, OnDestroy, Inject } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 
-import { FsPrompt } from '@firestitch/prompt';
 import { parse } from '@firestitch/date';
+import { FsPrompt } from '@firestitch/prompt';
 
-import { Subject, timer, of, Observable, BehaviorSubject } from 'rxjs';
-import { takeUntil, catchError, filter, take, switchMap, finalize } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, of, timer } from 'rxjs';
+import { catchError, filter, finalize, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 import { isAfter } from 'date-fns';
 
-import { FS_BUILD_CONFIG } from '../injectors';
-import { BuildConfig } from '../interfaces/build-config';
-import { BuildData } from '../interfaces';
 import { CompareMethod, UpdateAction } from '../enums';
+import { FS_BUILD_CONFIG } from '../injectors';
+import { BuildData } from '../interfaces';
+import { BuildConfig } from '../interfaces/build-config';
 
 
 @Injectable({
@@ -24,6 +24,7 @@ export class FsBuildService implements OnDestroy {
   private _build$ = new BehaviorSubject<BuildData>(null);
   private _destroy$ = new Subject();
   private _pendingUpdate = false;
+  private _ran = new Date;
 
   constructor(
     @Inject(FS_BUILD_CONFIG) private _config: BuildConfig,
@@ -42,7 +43,10 @@ export class FsBuildService implements OnDestroy {
   }
 
   public get build(): BuildData {
-    return this._build$.getValue();
+    return {
+      ...this._build$.getValue(),
+      ran: this._ran,
+    };
   }
 
   public set build(build: BuildData) {
@@ -71,8 +75,12 @@ export class FsBuildService implements OnDestroy {
   }
 
   public get build$(): Observable<BuildData> {
-    return this._build$.asObservable()
+    return this._build$
+      .asObservable()
       .pipe(
+        map(() => {
+          return this.build;
+        }),
         takeUntil(this._destroy$),
       );
   }
