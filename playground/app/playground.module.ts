@@ -27,63 +27,53 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  bootstrap: [AppComponent],
-  imports: [
-    BrowserModule,
-    FsBuildModule,
-    BrowserAnimationsModule,
-    AppMaterialModule,
-    FormsModule,
-    FsLabelModule,
-    FsExampleModule.forRoot(),
-    FsMessageModule.forRoot(),
-    ToastrModule.forRoot({ preventDuplicates: true }),
-    RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' }),
-  ],
-  entryComponents: [
-    KitchenSinkConfigureComponent
-  ],
-  declarations: [
-    AppComponent,
-    ExamplesComponent,
-    KitchenSinkComponent,
-    KitchenSinkConfigureComponent
-  ],
-  providers: [
-    {
-      provide: FS_BUILD_CONFIG,
-      useFactory: (): BuildConfig => {
-        return {
-          origin: 'http://firestitch-dev.s3.us-west-2.amazonaws.com',
-          path: 'pub/build.json',
-          //updateAction: UpdateAction.ManualUpdate,
-          compareMethod: CompareMethod.Version,
-          updateClick: (build: BuildData) => {
-            console.log('updateClick', build);
-          },
-        }
-      }
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (
-        buildService: FsBuildService,
-      ) => () => {
-        return of(null)
-          .pipe(
-            tap(() => {
-              buildService.build = {
-
-              };
-            }),
-            tap(() => buildService.listen({ delay: 5, interval: 10 })),
-          )
-          .toPromise();
-      },
-      multi: true,
-      deps: [FsBuildService],
-    },
-  ]
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
+        FsBuildModule,
+        BrowserAnimationsModule,
+        AppMaterialModule,
+        FormsModule,
+        FsLabelModule,
+        FsExampleModule.forRoot(),
+        FsMessageModule.forRoot(),
+        ToastrModule.forRoot({ preventDuplicates: true }),
+        RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' }),
+    ],
+    declarations: [
+        AppComponent,
+        ExamplesComponent,
+        KitchenSinkComponent,
+        KitchenSinkConfigureComponent
+    ],
+    providers: [
+        {
+            provide: FS_BUILD_CONFIG,
+            useFactory: (): BuildConfig => {
+                return {
+                    origin: 'http://firestitch-dev.s3.us-west-2.amazonaws.com',
+                    path: 'pub/build.json',
+                    //updateAction: UpdateAction.ManualUpdate,
+                    compareMethod: CompareMethod.Version,
+                    updateClick: (build: BuildData) => {
+                        console.log('updateClick', build);
+                    },
+                };
+            }
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: (buildService: FsBuildService) => () => {
+                return of(null)
+                    .pipe(tap(() => {
+                    buildService.build = {};
+                }), tap(() => buildService.listen({ delay: 5, interval: 10 })))
+                    .toPromise();
+            },
+            multi: true,
+            deps: [FsBuildService],
+        },
+    ]
 })
 export class PlaygroundModule {
 }
