@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FsExampleComponent } from '@firestitch/example';
 import { FsMessage } from '@firestitch/message';
 import { FsBuildService } from '@firestitch/package';
@@ -22,17 +22,17 @@ import { JsonPipe } from '@angular/common';
     ],
 })
 export class KitchenSinkComponent {
+  private exampleComponent = inject(FsExampleComponent);
+  private message = inject(FsMessage);
+  private _buildService = inject(FsBuildService);
+  private _cdRef = inject(ChangeDetectorRef);
+
 
   public config = {};
   public build;
   public version = 1;
 
-  constructor(
-    private exampleComponent: FsExampleComponent,
-    private message: FsMessage,
-    private _buildService: FsBuildService,
-    private _cdRef: ChangeDetectorRef,
-  ) {
+  constructor() {
     this.buildChagnes();
   }
 

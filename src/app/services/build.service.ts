@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { parse } from '@firestitch/date';
@@ -20,18 +20,18 @@ import { BuildConfig } from '../interfaces/build-config';
   providedIn: 'root',
 })
 export class FsBuildService implements OnDestroy {
+  private _config = inject<BuildConfig>(FS_BUILD_CONFIG);
+  private _http = inject(HttpClient);
+  private _prompt = inject(FsPrompt);
+  private _router = inject(Router);
+
 
   private _build$ = new BehaviorSubject<BuildData>(null);
   private _destroy$ = new Subject();
   private _pendingUpdate = false;
   private _ran = new Date;
 
-  constructor(
-    @Inject(FS_BUILD_CONFIG) private _config: BuildConfig,
-    private _http: HttpClient,
-    private _prompt: FsPrompt,
-    private _router: Router,
-  ) {
+  constructor() {
     this._config = {
       interval: 60,
       path: 'assets/build.json',

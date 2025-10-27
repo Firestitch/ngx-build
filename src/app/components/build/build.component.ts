@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 
 import { FsPrompt } from '@firestitch/prompt';
 
@@ -21,15 +21,12 @@ import { MatIcon } from '@angular/material/icon';
     imports: [MatIcon],
 })
 export class FsBuildComponent implements OnDestroy, OnInit {
+  private _buildService = inject(FsBuildService);
+  private _prompt = inject(FsPrompt);
+
 
   private _destroy$ = new Subject();
   private _build: BuildData;
-
-  constructor(
-    private _buildService: FsBuildService,
-    private _prompt: FsPrompt,
-  ) {
-  }
 
   public ngOnInit(): void {
     this._build = this._buildService.build;
