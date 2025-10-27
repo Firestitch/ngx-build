@@ -2,12 +2,24 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/
 import { FsExampleComponent } from '@firestitch/example';
 import { FsMessage } from '@firestitch/message';
 import { FsBuildService } from '@firestitch/package';
+import { FsBuildComponent } from '../../../../src/app/components/build/build.component';
+import { MatButton, MatAnchor } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
+import { JsonPipe } from '@angular/common';
 
 @Component({
-  selector: 'kitchen-sink',
-  templateUrl: './kitchen-sink.component.html',
-  styleUrls: ['./kitchen-sink.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'kitchen-sink',
+    templateUrl: './kitchen-sink.component.html',
+    styleUrls: ['./kitchen-sink.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        FsBuildComponent,
+        MatButton,
+        MatAnchor,
+        RouterLink,
+        JsonPipe,
+    ],
 })
 export class KitchenSinkComponent {
 

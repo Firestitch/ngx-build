@@ -9,13 +9,16 @@ import { format, isValid } from 'date-fns';
 
 import { FsBuildService } from '../../services/build.service';
 import { BuildData } from './../../interfaces/build-data';
+import { MatIcon } from '@angular/material/icon';
 
 
 @Component({
-  selector: 'fs-build',
-  templateUrl: 'build.component.html',
-  styleUrls: ['build.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'fs-build',
+    templateUrl: 'build.component.html',
+    styleUrls: ['build.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [MatIcon],
 })
 export class FsBuildComponent implements OnDestroy, OnInit {
 
